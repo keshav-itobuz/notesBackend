@@ -1,9 +1,4 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv'
-
-dotenv.config()
-const URL = process.env.URL;
-mongoose.connect(URL);
 
 const { Schema } = mongoose;
 
@@ -19,6 +14,6 @@ const notesSchema = new Schema({
     required: true
   },
 
-});
+},{timestamps : true});
 
 export const Notes = mongoose.model('Notes', notesSchema);
