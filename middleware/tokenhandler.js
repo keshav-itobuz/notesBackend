@@ -1,5 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const secretKey = process.env.SECRET;
+
 
 const validateToken = async (req, res, next) => {
     try {
@@ -7,7 +12,7 @@ const validateToken = async (req, res, next) => {
         let authHeader = req.headers.Authorization || req.headers.authorization;
         if (authHeader && authHeader.startsWith("Bearer")) {
             token = authHeader.split(" ")[1];
-            jwt.verify(token, process.env.SECRET, (err, decoded) => {
+            jwt.verify(token, secretKey , (err, decoded) => {
                 if (err) {
                     res.status(401);
                     throw new Error("User is not authorized");
@@ -15,7 +20,6 @@ const validateToken = async (req, res, next) => {
                 req.userId = decoded.userId;
                 next();
             });
-
             if (!token) {
                 res.status(StatusCodes.UNAUTHORIZED);
                 throw new Error("User is not authorized or token is missing");
@@ -26,7 +30,7 @@ const validateToken = async (req, res, next) => {
         }
     }
     catch(err){
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR ).json({data:null , message: err})
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR ).json({data:null , message: "Error"})
     }
 };
 

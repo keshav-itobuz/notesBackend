@@ -4,9 +4,8 @@ import { StatusCodes } from 'http-status-codes';
 export async function getNote(req, res) {
     try {
         const notesTitle = req.query.title;
-        console.log(notesTitle);
-        const noteData = await Notes.find({ title: {"$regex":notesTitle} });
-        if (noteData.length===0) {
+        const noteData = await Notes.find({ title: { "$regex": notesTitle }, userId: req.userId });
+        if (noteData.length === 0) {
             throw new Error();
         }
         const data = {
@@ -33,9 +32,10 @@ export async function updateNote(req, res) {
 export async function addNote(req, res) {
     try {
         const note = new Notes({
-            title:req.body.title,
-            description:req.body.description,
-            userId : req.userId
+            title: req.body.title,
+            description: req.body.description,
+            userId: req.userId,
+            isVisible: true,
         });
         await note.save();
         res.status(StatusCodes.OK).json({ data: req.body, message: 'Succesfully Created' });
@@ -57,13 +57,23 @@ export async function deleteNote(req, res) {
 
 export async function latestUpdatedNotes(req, res) {
     try {
-        const data = await Notes.find().sort({ updatedAt: -1 }).limit(3);
-        if(!data){
+        const data = await Notes.find({ userId: req.userId }).sort({ updatedAt: -1 }).limit(3);
+        if (!data) {
             throw new Error();
         }
-        res.status(200).json(data);
+        res.status(StatusCodes.OK).json({data:data , message:"last 3 updated data received"});
+    }
+    catch (err) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: "internal error" })
+    }
+}
+
+export async function changeVisiblity(){
+    try{
+        const data = await Notes.updateMany({_id:{$in:req.body.itemIds}}, {isVisible:false});
+        res.status(StatusCodes.OK).json({data:data , message:"Updated"});
     }
     catch(err){
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({data:'null' , message : "internal error"})
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: "internal error" })
     }
 }

@@ -16,6 +16,10 @@ const notesSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true
   },
+  isVisible:{
+    type: Boolean,
+    required: true
+  }
 
 },{timestamps : true});
 
