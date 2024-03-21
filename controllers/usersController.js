@@ -1,12 +1,16 @@
 import User from '../model/userModel.js';
+import dotenv from 'dotenv';
 import { StatusCodes } from 'http-status-codes';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+dotenv.config();
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
 export async function registerUser(req, res) {
     try {
-        if(!req.body.email.match(emailRegex)){
+        if (!req.body.email.match(emailRegex)) {
             throw new Error("Email is not valid")
         }
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -35,9 +39,18 @@ export async function loginUser(req, res) {
                 res.status(StatusCodes.NOT_ACCEPTABLE).json({ data: "undefined", message: "Wrong Password" });
                 return;
             }
+            const secretKey = process.env.SECRET;
+            const accessToken = jwt.sign(
+                {
+                    userId:userAuth._id
+                },
+                secretKey,
+                {expiresIn: "120m"}
+            );
+            res.status(200).json({token:accessToken})
         }
 
-        res.status(StatusCodes.OK).json({ data: req.body, message: 'Succesfully Signed in' });
+        // res.status(StatusCodes.OK).json({ data: userAuth, message: 'Succesfully Signed in' });
     } catch (err) {
         res.status(StatusCodes.NOT_FOUND).json({ data: "undefined", message: `Error : ${err}` });
     }

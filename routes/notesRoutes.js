@@ -1,17 +1,19 @@
 import { getNote , updateNote , deleteNote , addNote , latestUpdatedNotes } from "../controllers/notesController.js";
 import { Router } from "express";
+import validateToken from "../middleware/tokenhandler.js";
 
 const router = Router();
+router.use(validateToken);
 
-router.get('/latestNotes' , latestUpdatedNotes)
+router.get('/latest-notes' , latestUpdatedNotes)
 
-router.get('/:title',  getNote);
+router.get('/get-note',  getNote);
 
-router.put('/:id', updateNote);
+router.put('/update-note:id', updateNote);
 
-router.post('/', addNote);
+router.post('/add-note', addNote);
 
-router.delete('/:id', deleteNote);
+router.delete('/delete-note:id', deleteNote);
 
 
 export default router;
