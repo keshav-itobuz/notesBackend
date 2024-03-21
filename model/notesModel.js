@@ -4,7 +4,6 @@ const { Schema } = mongoose;
 
 
 const notesSchema = new Schema({
-  notesId : String,
   title: {
     type: String,
     required: true

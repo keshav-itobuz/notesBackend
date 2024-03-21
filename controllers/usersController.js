@@ -2,15 +2,12 @@ import User from '../model/userModel.js';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt'
 
-
-
+const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
 export async function registerUser(req, res) {
     try {
-        const userExistence = await User.findOne({ email: req.body.email });
-        if (userExistence) {
-            res.status(StatusCodes.NOT_ACCEPTABLE).json({ data: "undefined", message: "Email already exists" });
-            return;
+        if(!req.body.email.match(emailRegex)){
+            throw new Error("Email is not valid")
         }
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
         const user = new User({
