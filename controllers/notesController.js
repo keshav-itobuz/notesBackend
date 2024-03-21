@@ -1,6 +1,19 @@
 import { Notes } from '../model/notesModel.js';
 import { StatusCodes } from 'http-status-codes';
 
+export async function getAll(req, res) {
+    try {
+        const data = await Notes.find({ userId: req.userId })
+        if(data.length===0){
+            throw new Error("No data exists")
+        }
+        res.status(StatusCodes.OK).json({ data: data, message: "success" });
+    }
+    catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ data: null, message: error })
+    }
+}
+
 export async function getNote(req, res) {
     try {
         const notesTitle = req.query.title;
@@ -31,6 +44,10 @@ export async function updateNote(req, res) {
 
 export async function addNote(req, res) {
     try {
+        const exixtence = Notes.find({ title: req.body.title });
+        if (exixtence.length !== 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: "This Note already exists" });
+        }
         const note = new Notes({
             title: req.body.title,
             description: req.body.description,
@@ -61,19 +78,29 @@ export async function latestUpdatedNotes(req, res) {
         if (!data) {
             throw new Error();
         }
-        res.status(StatusCodes.OK).json({data:data , message:"last 3 updated data received"});
+        res.status(StatusCodes.OK).json({ data: data, message: "last 3 updated data received" });
     }
     catch (err) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: "internal error" })
     }
 }
 
-export async function changeVisiblity(){
-    try{
-        const data = await Notes.updateMany({_id:{$in:req.body.itemIds}}, {isVisible:false});
-        res.status(StatusCodes.OK).json({data:data , message:"Updated"});
+export async function changeVisiblity(req, res) {
+    try {
+        const data = await Notes.updateMany({ _id: { $in: req.body.itemIds } }, { isVisible: false });
+        res.status(StatusCodes.OK).json({ data: data, message: "Updated" });
     }
-    catch(err){
+    catch (err) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: "internal error" })
+    }
+}
+
+export async function deleteMany(req , res ){
+    try {
+        const data = await Notes.deleteMany({ _id: { $in: req.body.itemIds } });
+        res.status(StatusCodes.OK).json({ data: data, message: "Deleted" });
+    }
+    catch (err) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: "internal error" })
     }
 }
