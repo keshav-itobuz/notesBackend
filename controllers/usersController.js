@@ -26,7 +26,7 @@ export async function registerUser(req, res) {
     } catch (err) {
         res
             .status(StatusCodes.NOT_FOUND)
-            .json({ data: 'undefined', message: `Error : ${err}` });
+            .json({ data: null, message: `Error : ${err}` });
     }
 }
 
@@ -36,7 +36,7 @@ export async function loginUser(req, res) {
         if (!userAuth) {
             res
                 .status(StatusCodes.NOT_ACCEPTABLE)
-                .json({ data: 'undefined', message: "user Doesn't exists" });
+                .json({ data: null, message: "user Doesn't exists" });
             return;
         } else {
             const passwordMatch = await bcrypt.compare(
@@ -46,7 +46,7 @@ export async function loginUser(req, res) {
             if (!passwordMatch) {
                 res
                     .status(StatusCodes.NOT_ACCEPTABLE)
-                    .json({ data: 'undefined', message: 'Wrong Password' });
+                    .json({ data: null, message: 'Wrong Password' });
                 return;
             }
             const secretKey = process.env.SECRET;
@@ -64,6 +64,6 @@ export async function loginUser(req, res) {
     } catch (err) {
         res
             .status(StatusCodes.NOT_FOUND)
-            .json({ data: 'undefined', message: `Error : ${err}` });
+            .json({ data: null, message: `Error : ${err}` });
     }
 }

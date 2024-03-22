@@ -9,9 +9,7 @@ export async function getAll(req, res) {
         }
         res.status(StatusCodes.OK).json({ data: data, message: 'success' });
     } catch (error) {
-        res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ data: null, message: error });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ data: null, message: error });
     }
 }
 
@@ -32,9 +30,7 @@ export async function getNote(req, res) {
         };
         res.status(StatusCodes.OK).json(data);
     } catch (err) {
-        res
-            .status(StatusCodes.NOT_FOUND)
-            .json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
     }
 }
 
@@ -46,23 +42,17 @@ export async function updateNote(req, res) {
             { title: req.body.title },
             { returnOriginal: false }
         );
-        res
-            .status(StatusCodes.OK)
-            .json({ data: data, message: 'Succesfully Updated' });
+        res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Updated' });
     } catch (err) {
-        res
-            .status(StatusCodes.NOT_FOUND)
-            .json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
     }
 }
 
 export async function addNote(req, res) {
     try {
-        const exixtence = Notes.find({ title: req.body.title });
-        if (exixtence.length !== 0) {
-            return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ data: null, message: 'This Note already exists' });
+        const existence = await Notes.find({ title: req.body.title });
+        if (existence.length !== 0) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: 'This Note already exists' });
         }
         const note = new Notes({
             title: req.body.title,
@@ -71,13 +61,9 @@ export async function addNote(req, res) {
             isVisible: true,
         });
         await note.save();
-        res
-            .status(StatusCodes.OK)
-            .json({ data: req.body, message: 'Succesfully Created' });
+        res.status(StatusCodes.OK).json({ data: req.body, message: 'Succesfully Created' });
     } catch (err) {
-        res
-            .status(StatusCodes.NOT_FOUND)
-            .json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
     }
 }
 
@@ -86,45 +72,31 @@ export async function deleteNote(req, res) {
         const noteId = req.params.id;
         const data = findById(noteId);
         await Notes.findByIdAndDelete(noteId);
-        res
-            .status(StatusCodes.OK)
-            .json({ data: data, message: 'Succesfully Deleted Above Data' });
+        res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Deleted Above Data' });
     } catch (err) {
-        res
-            .status(StatusCodes.NOT_FOUND)
-            .json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
     }
 }
 
 export async function latestUpdatedNotes(req, res) {
     try {
-        const data = await Notes.find({ userId: req.userId })
-            .sort({ updatedAt: -1 })
-            .limit(3);
+        const data = await Notes.find({ userId: req.userId }).sort({ updatedAt: -1 }).limit(3);
         if (!data) {
             throw new Error();
         }
-        res
-            .status(StatusCodes.OK)
-            .json({ data: data, message: 'last 3 updated data received' });
+        res.status(StatusCodes.OK).json({ data: data, message: 'last 3 updated data received' });
     } catch (err) {
-        res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .send({ data: 'null', message: 'internal error' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: 'internal error' });
     }
 }
 
 export async function changeVisiblity(req, res) {
     try {
-        const data = await Notes.updateMany(
-            { _id: { $in: req.body.itemIds } },
-            { isVisible: false }
+        const data = await Notes.updateMany({ _id: { $in: req.body.itemIds } },{ isVisible: false }
         );
         res.status(StatusCodes.OK).json({ data: data, message: 'Updated' });
     } catch (err) {
-        res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .send({ data: 'null', message: 'internal error' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: 'internal error' });
     }
 }
 
@@ -133,8 +105,6 @@ export async function deleteMany(req, res) {
         const data = await Notes.deleteMany({ _id: { $in: req.body.itemIds } });
         res.status(StatusCodes.OK).json({ data: data, message: 'Deleted' });
     } catch (err) {
-        res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .send({ data: 'null', message: 'internal error' });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: 'internal error' });
     }
 }
