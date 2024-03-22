@@ -50,7 +50,7 @@ export async function updateNote(req, res) {
 
 export async function addNote(req, res) {
     try {
-        const existence = await Notes.find({ title: req.body.title });
+        const existence = await Notes.find({ title: req.body.title , userId:req.userId});
         if (existence.length !== 0) {
             return res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: 'This Note already exists' });
         }
