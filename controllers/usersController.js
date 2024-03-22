@@ -20,13 +20,9 @@ export async function registerUser(req, res) {
             password: hashedPassword,
         });
         await user.save();
-        res
-            .status(StatusCodes.OK)
-            .json({ data: req.body, message: 'Succesfully Created' });
+        res.status(StatusCodes.OK).json({ data: req.body, message: 'Succesfully Created' });
     } catch (err) {
-        res
-            .status(StatusCodes.NOT_FOUND)
-            .json({ data: null, message: `Error : ${err}` });
+        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: `Error : ${err}` });
     }
 }
 
@@ -34,9 +30,7 @@ export async function loginUser(req, res) {
     try {
         const userAuth = await User.findOne({ email: req.body.email });
         if (!userAuth) {
-            res
-                .status(StatusCodes.NOT_ACCEPTABLE)
-                .json({ data: null, message: "user Doesn't exists" });
+            res.status(StatusCodes.NOT_ACCEPTABLE).json({ data: null, message: "user Doesn't exists" });
             return;
         } else {
             const passwordMatch = await bcrypt.compare(
@@ -44,9 +38,7 @@ export async function loginUser(req, res) {
                 userAuth.password
             );
             if (!passwordMatch) {
-                res
-                    .status(StatusCodes.NOT_ACCEPTABLE)
-                    .json({ data: null, message: 'Wrong Password' });
+                res.status(StatusCodes.NOT_ACCEPTABLE).json({ data: null, message: 'Wrong Password' });
                 return;
             }
             const secretKey = process.env.SECRET;
@@ -62,8 +54,6 @@ export async function loginUser(req, res) {
 
         // res.status(StatusCodes.OK).json({ data: userAuth, message: 'Succesfully Signed in' });
     } catch (err) {
-        res
-            .status(StatusCodes.NOT_FOUND)
-            .json({ data: null, message: `Error : ${err}` });
+        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: `Error : ${err}` });
     }
 }

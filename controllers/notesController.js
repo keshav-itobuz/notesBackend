@@ -30,7 +30,7 @@ export async function getNote(req, res) {
         };
         res.status(StatusCodes.OK).json(data);
     } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
     }
 }
 
@@ -44,7 +44,7 @@ export async function updateNote(req, res) {
         );
         res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Updated' });
     } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
     }
 }
 
@@ -63,7 +63,7 @@ export async function addNote(req, res) {
         await note.save();
         res.status(StatusCodes.OK).json({ data: req.body, message: 'Succesfully Created' });
     } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
     }
 }
 
@@ -74,7 +74,7 @@ export async function deleteNote(req, res) {
         await Notes.findByIdAndDelete(noteId);
         res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Deleted Above Data' });
     } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: 'undefined', message: 'Error not found' });
+        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
     }
 }
 
