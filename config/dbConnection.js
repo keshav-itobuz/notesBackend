@@ -6,8 +6,8 @@ dotenv.config();
 const URL = process.env.URL;
 
 export default async function dbConnection() {
-    mongoose.connect(URL)
-    
+    mongoose.connect(URL);
+
     mongoose.connection.on('error', (error) => {
         console.error('MongoDB connection error:', error);
         mongoose.connection.close();

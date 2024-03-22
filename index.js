@@ -13,13 +13,8 @@ app.use(express.json());
 app.use('/notes', notesRoutes);
 app.use('/users', usersRoutes);
 
-
-
-dbConnection()
+dbConnection();
 
 app.listen(PORT, (error) => {
     console.log(`listening on port ${PORT}`);
-})
-
-
-
+});

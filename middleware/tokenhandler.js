@@ -5,28 +5,24 @@ dotenv.config();
 
 const secretKey = process.env.SECRET;
 
-
 const validateToken = async (req, res, next) => {
     try {
         let token;
         let authHeader = req.headers.Authorization || req.headers.authorization;
-        if (authHeader && authHeader.startsWith("Bearer")) {
-            token = authHeader.split(" ")[1];
-            jwt.verify(token, secretKey , (err, decoded) => {
+        if (authHeader && authHeader.startsWith('Bearer')) {
+            token = authHeader.split(' ')[1];
+            jwt.verify(token, secretKey, (err, decoded) => {
                 if (err) {
-                    throw new Error("User is not authorized");
+                    throw new Error('User is not authorized');
                 }
                 req.userId = decoded.userId;
                 next();
             });
-    
+        } else {
+            throw new Error('Token is missing!!!');
         }
-        else{
-            throw new Error("Token is missing!!!");
-        }
-    }
-    catch(error){
-        res.status(StatusCodes.BAD_REQUEST ).json({data:null , message: error})
+    } catch (error) {
+        res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: error });
     }
 };
 
