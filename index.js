@@ -15,6 +15,6 @@ app.use('/users', usersRoutes);
 
 dbConnection();
 
-app.listen(PORT, (error) => {
+app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
 });

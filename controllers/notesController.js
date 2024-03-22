@@ -50,7 +50,7 @@ export async function updateNote(req, res) {
 
 export async function addNote(req, res) {
     try {
-        const existence = await Notes.find({ title: req.body.title , userId:req.userId});
+        const existence = await Notes.find({ title: req.body.title, userId: req.userId });
         if (existence.length !== 0) {
             return res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: 'This Note already exists' });
         }
@@ -92,7 +92,7 @@ export async function latestUpdatedNotes(req, res) {
 
 export async function changeVisiblity(req, res) {
     try {
-        const data = await Notes.updateMany({ _id: { $in: req.body.itemIds } },{ isVisible: false }
+        const data = await Notes.updateMany({ _id: { $in: req.body.itemIds } }, { isVisible: false }
         );
         res.status(StatusCodes.OK).json({ data: data, message: 'Updated' });
     } catch (err) {
@@ -107,4 +107,8 @@ export async function deleteMany(req, res) {
     } catch (err) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: 'internal error' });
     }
+}
+
+export async function wrongUrl(req, res) {
+    res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: "Wrong url" })
 }

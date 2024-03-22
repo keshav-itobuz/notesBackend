@@ -57,3 +57,7 @@ export async function loginUser(req, res) {
         res.status(StatusCodes.NOT_FOUND).json({ data: null, message: `Error : ${err}` });
     }
 }
+
+export async function wrongUrl(req, res) {
+    res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: "Wrong url" })
+}
