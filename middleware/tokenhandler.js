@@ -13,16 +13,16 @@ const validateToken = async (req, res, next) => {
             token = authHeader.split(' ')[1];
             jwt.verify(token, secretKey, (err, decoded) => {
                 if (err) {
-                    throw new Error('User is not authorized');
+                    throw new Error("User is not authorized");
                 }
                 req.userId = decoded.userId;
                 next();
             });
         } else {
-            throw new Error('Token is missing!!!');
+            throw new Error("Token is missing!!!");
         }
     } catch (error) {
-        res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: error });
+        next({status:StatusCodes.UNAUTHORIZED , message:error.message})
     }
 };
 

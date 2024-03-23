@@ -1,19 +1,19 @@
 import { Notes } from '../model/notesModel.js';
 import { StatusCodes } from 'http-status-codes';
 
-export async function getAll(req, res) {
+export async function getAll(req, res , next) {
     try {
         const data = await Notes.find({ userId: req.userId });
         if (data.length === 0) {
             throw new Error('No data exists');
         }
-        res.status(StatusCodes.OK).json({ data: data, message: 'success' });
+        return res.status(StatusCodes.OK).json({ data: data, message: 'success' });
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ data: null, message: error });
+        next(StatusCodes.INTERNAL_SERVER_ERROR).json({ data: null, message: error.message });
     }
 }
 
-export async function getNote(req, res) {
+export async function getNote(req, res , next) {
     try {
         const notesTitle = req.query.title;
         const noteData = await Notes.find({
@@ -21,20 +21,15 @@ export async function getNote(req, res) {
             userId: req.userId,
         });
         if (noteData.length === 0) {
-            throw new Error();
+            throw new Error("Resource was not found");
         }
-        const data = {
-            status: StatusCodes.OK,
-            data: noteData,
-            message: 'success',
-        };
-        res.status(StatusCodes.OK).json(data);
+       return  res.status(StatusCodes.OK).json({data:noteData , message: "Successfully got the resource"});
     } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
+        next({status:StatusCodes.NOT_FOUND, message: err.message});
     }
 }
 
-export async function updateNote(req, res) {
+export async function updateNote(req, res , next) {
     try {
         const noteId = req.params.id;
         const data = await Notes.findByIdAndUpdate(
@@ -42,17 +37,17 @@ export async function updateNote(req, res) {
             { title: req.body.title },
             { returnOriginal: false }
         );
-        res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Updated' });
-    } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
+        return res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Updated' });
+    } catch (error) {
+        next({status:StatusCodes.BAD_REQUEST, message: err.message});
     }
 }
 
-export async function addNote(req, res) {
+export async function addNote(req, res , next) {
     try {
         const existence = await Notes.find({ title: req.body.title, userId: req.userId });
         if (existence.length !== 0) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: 'This Note already exists' });
+            throw new Error("This Note already exists");
         }
         const note = new Notes({
             title: req.body.title,
@@ -61,54 +56,54 @@ export async function addNote(req, res) {
             isVisible: true,
         });
         await note.save();
-        res.status(StatusCodes.OK).json({ data: req.body, message: 'Succesfully Created' });
-    } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
+        return res.status(StatusCodes.CREATED).json({ data: req.body, message: 'Succesfully Created' });
+    } catch (error) {
+        next({status:StatusCodes.CONFLICT, message: error.message});
     }
 }
 
-export async function deleteNote(req, res) {
+export async function deleteNote(req, res , next) {
     try {
         const noteId = req.params.id;
         const data = findById(noteId);
         await Notes.findByIdAndDelete(noteId);
-        res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Deleted Above Data' });
-    } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: 'Error not found' });
+        return res.status(StatusCodes.OK).json({ data: data, message: 'Succesfully Deleted Above Data' });
+    } catch (error) {
+        next({status:StatusCodes.NOT_FOUND, message: error.message});
+        
     }
 }
 
-export async function latestUpdatedNotes(req, res) {
+export async function latestUpdatedNotes(req, res , next) {
     try {
         const data = await Notes.find({ userId: req.userId }).sort({ updatedAt: -1 }).limit(3);
         if (!data) {
-            throw new Error();
+            throw new Error("No data to display");
         }
-        res.status(StatusCodes.OK).json({ data: data, message: 'last 3 updated data received' });
-    } catch (err) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: 'internal error' });
+        return res.status(StatusCodes.OK).json({ data: data, message: "Last 3 updated data received" });
+    } catch (error) {
+        next({status:StatusCodes.INTERNAL_SERVER_ERROR, message: error.message});
     }
 }
 
-export async function changeVisiblity(req, res) {
+export async function changeVisiblity(req, res , next) {
     try {
-        const data = await Notes.updateMany({ _id: { $in: req.body.itemIds } }, { isVisible: false }
-        );
-        res.status(StatusCodes.OK).json({ data: data, message: 'Updated' });
-    } catch (err) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: 'internal error' });
+        const data = await Notes.updateMany({ _id: { $in: req.body.itemIds } }, { isVisible: false });
+        return res.status(StatusCodes.OK).json({ data: data, message: 'Updated' });
+    } catch (error) {
+        next({status:StatusCodes.INTERNAL_SERVER_ERROR, message: error.message});
     }
 }
 
-export async function deleteMany(req, res) {
+export async function deleteMany(req, res , next) {
     try {
         const data = await Notes.deleteMany({ _id: { $in: req.body.itemIds } });
-        res.status(StatusCodes.OK).json({ data: data, message: 'Deleted' });
-    } catch (err) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ data: 'null', message: 'internal error' });
+        return res.status(StatusCodes.OK).json({ data: data, message: 'Deleted' });
+    } catch (error) {
+        next({status:StatusCodes.INTERNAL_SERVER_ERROR, message: error.message});
     }
 }
 
-export async function wrongUrl(req, res) {
-    res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: "Wrong url" })
+export async function wrongUrl(req, res , next) {
+    return res.status(StatusCodes.BAD_REQUEST).json({ data: null, message: "Wrong url" })
 }

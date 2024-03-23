@@ -3,12 +3,13 @@ import dotenv from 'dotenv';
 import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Error } from 'mongoose';
 
 dotenv.config();
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
-export async function registerUser(req, res) {
+export async function registerUser(req, res , next) {
     try {
         if (!req.body.email.match(emailRegex)) {
             throw new Error('Email is not valid');
@@ -20,26 +21,24 @@ export async function registerUser(req, res) {
             password: hashedPassword,
         });
         await user.save();
-        res.status(StatusCodes.OK).json({ data: req.body, message: 'Succesfully Created' });
-    } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: `Error : ${err}` });
+        return res.status(StatusCodes.ACCEPTED).json({ data: req.body, message: 'Succesfully Created' });
+    } catch (error) {
+        next({status:StatusCodes.NOT_ACCEPTABLE, message: error.message});
     }
 }
 
-export async function loginUser(req, res) {
+export async function loginUser(req, res , next) {
     try {
         const userAuth = await User.findOne({ email: req.body.email });
         if (!userAuth) {
-            res.status(StatusCodes.NOT_ACCEPTABLE).json({ data: null, message: "user Doesn't exists" });
-            return;
+            throw new Error("Email doesn't exist");
         } else {
             const passwordMatch = await bcrypt.compare(
                 req.body.password,
                 userAuth.password
             );
             if (!passwordMatch) {
-                res.status(StatusCodes.NOT_ACCEPTABLE).json({ data: null, message: 'Wrong Password' });
-                return;
+                throw new Error("Wrong Password");
             }
             const secretKey = process.env.SECRET;
             const accessToken = jwt.sign(
@@ -49,12 +48,11 @@ export async function loginUser(req, res) {
                 secretKey,
                 { expiresIn: '120m' }
             );
-            res.status(200).json({ token: accessToken });
+            return res.status(StatusCodes.ACCEPTED).json({ data: accessToken , message: 'Succesfully Signed in' });
         }
-
-        // res.status(StatusCodes.OK).json({ data: userAuth, message: 'Succesfully Signed in' });
-    } catch (err) {
-        res.status(StatusCodes.NOT_FOUND).json({ data: null, message: `Error : ${err}` });
+        
+    } catch (error) {
+        next({status:StatusCodes.NOT_FOUND, message: error.message});
     }
 }
 

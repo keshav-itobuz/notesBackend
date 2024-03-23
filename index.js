@@ -12,7 +12,9 @@ const app = express();
 app.use(express.json());
 app.use('/notes', notesRoutes);
 app.use('/users', usersRoutes);
-
+app.use('/', (error , req, res ) => {
+    res.status(error.status).json({data:null , message:error.message});
+})
 dbConnection();
 
 app.listen(PORT, () => {
